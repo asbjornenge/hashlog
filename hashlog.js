@@ -5,6 +5,8 @@ export default class HashLog {
         this.tip = null
         this.hashes = []
         this.blocks = {}
+        // Snapshot blocks most likely already exist with deltas etc.?
+        // This builds a new log from raw data...
         if(snapshot) snapshot.forEach(block => this.push(block))
     }
     hash(data) {

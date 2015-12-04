@@ -45,6 +45,7 @@ it('can merge logs', (done) => {
     setTimeout(() => {
         log2.push('data4')
         log1.merge(log2)
+        // TODO: Mangle merge back (2 into 1) - trivial?
         done()
     })
 
