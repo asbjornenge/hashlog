@@ -2,31 +2,75 @@
 import { createHash } from 'crypto'
 
 export default class HashLog {
-    constructor() {
+    constructor(snapshot) {
         this.tip = null
-        this.blocks = []
+        this.hashes = []
+        this.blocks = {}
+        if(snapshot) snapshot.forEach(block => this.push(block))
     }
-    hash(s) {
+    hash(data) {
         // TODO: Add hash prefix?
-        return createHash('sha256').update(s).digest().toString('hex')
+        return createHash('sha256').update(data).digest().toString('hex')
     }
     push(data) {
+        let tiphash = this.tip ? this.tip.key : ''
+        let tiplink = this.tip ? this.tip.key : null
+        let blockhash = this.hash(data+tiphash)
         let block = {
-            key   : this.hash(data),
+            key   : blockhash, 
             value : data,
-            link  : this.tip ? this.tip.key : null
+            link  : tiplink
         }
-        this.blocks.push(block)
+        this.blocks[blockhash] = block
+        this.hashes.push(blockhash)
         this.tip = block
     }
     contains(hash) {
         if (!hash) return false
-        // TODO: Super naive loop for now
-        return this.blocks.filter(block => block.key == hash).length > 0
+        return this.blocks[hash]
     }
     merge(hashlog) {
-
+        // Merge hashlog into this
+        // If this contains hashlog, not worries
+        if (this.tip.key == hashlog.tip.key) return true
+        if (this.contains(hashlog.tip.key)) return true
+        let commonIndexRight = findCommonIndex(this, hashlog)
+        let commonIndexLeft = this.hashes.indexOf(hashlog.hashes[commonIndexRight])
+        let mergeblocksRight = []
+        for (var i = commonIndexRight+1; i < hashlog.hashes.length; i++) {
+            let mhash = hashlog.hashes[i]
+            let mblock = hashlog.blocks[mhash]
+            mergeblocksRight.push(mblock)
+        }
+        let mergeBlocksLeft = []
+        for (var i = commonIndexLeft+1; i < this.hashes.length; i++) {
+            let mhash = this.hashes[i]
+            let mblock = this.blocks[mhash]
+            mergeBlocksLeft.push(mblock)
+        }
+        console.log(mergeBlocksLeft, mergeblocksRight)
+        let mergeBlocks = mergeBlocksLeft.concat(mergeblocksRight)
+        console.log(mergeBlocks)
+        // Find new nodes
+        // for each
+        //   determine location
+        //   insert
+        //   update parents?
+        //   remove dead leafs - mergeblockleft hashes ?
     }
+}
+
+function findCommonIndex(left, right) {
+    // TODO: Should use binary
+    // Loop backwards and check nodes
+    let index = 0;
+    for (var i=right.hashes.length-1; i > -1; i--) {
+        if (left.contains(right.hashes[i])) {
+            index = i
+            break
+        }
+    }
+    return index
 }
 
 function binaryIndexOf(searchElement) {
