@@ -36,22 +36,21 @@ it('can check if a log contains a hash', () => {
     assert(!log2.contains(log1.hashes[2]))
 })
 
-it('can merge logs', () => {
+it('can merge logs', (done) => {
     let base = ['data0','data1','data2']
-    let tip1 = 'data3'
-    let tip2 = 'data4'
 
     let log1 = new HashLog(base)
     let log2 = new HashLog(base)
+    log1.push('data3')
+    setTimeout(() => {
+        log2.push('data4')
+        log1.merge(log2)
+        done()
+    })
 
-    log1.push(tip1)
-    log2.push(tip2)
+//    assert(log1.tip.value == 'data3')
+//    assert(log2.tip.value == 'data4')
 
-    assert(log1.tip.value == 'data3')
-    assert(log2.tip.value == 'data4')
-
-    let log3 = log1.merge(log2)
     
-    console.log(log3)
 
 })

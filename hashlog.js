@@ -1,4 +1,3 @@
-//import { tree } from './tree'
 import { createHash } from 'crypto'
 
 export default class HashLog {
@@ -13,17 +12,20 @@ export default class HashLog {
         return createHash('sha256').update(data).digest().toString('hex')
     }
     push(data) {
-        let tiphash = this.tip ? this.tip.key : ''
-        let tiplink = this.tip ? this.tip.key : null
+        let tiphash   = this.tip ? this.tip.key : ''
+        let tiplink   = this.tip ? this.tip.key : null
         let blockhash = this.hash(data+tiphash)
+        let tipseen   = this.tipseen || [0,0]
         let block = {
             key   : blockhash, 
             value : data,
-            link  : tiplink
+            link  : tiplink,
+            delta : process.hrtime(tipseen)
         }
         this.blocks[blockhash] = block
         this.hashes.push(blockhash)
         this.tip = block
+        this.tipseen = block.delta
     }
     contains(hash) {
         if (!hash) return false
@@ -32,8 +34,8 @@ export default class HashLog {
     merge(hashlog) {
         // Merge hashlog into this
         // If this contains hashlog, not worries
-        if (this.tip.key == hashlog.tip.key) return true
-        if (this.contains(hashlog.tip.key)) return true
+        if (this.tip.key == hashlog.tip.key) return
+        if (this.contains(hashlog.tip.key)) return
         let commonIndexRight = findCommonIndex(this, hashlog)
         let commonIndexLeft = this.hashes.indexOf(hashlog.hashes[commonIndexRight])
         let mergeblocksRight = []
@@ -48,8 +50,8 @@ export default class HashLog {
             let mblock = this.blocks[mhash]
             mergeBlocksLeft.push(mblock)
         }
-        console.log(mergeBlocksLeft, mergeblocksRight)
         let mergeBlocks = mergeBlocksLeft.concat(mergeblocksRight)
+        sortBlocksByDelta(mergeBlocks)
         console.log(mergeBlocks)
         // Find new nodes
         // for each
@@ -60,8 +62,18 @@ export default class HashLog {
     }
 }
 
+function sortBlocksByDelta(blocks) {
+    blocks.sort((a,b) => {
+        let anano = a.delta[0] * 1e9 + a.delta[1]
+        let bnano = b.delta[0] * 1e9 + b.delta[1]
+        if (anano < bnano) return -1
+        if (anano > bnano) return 1
+        return 0
+    })
+}
+
 function findCommonIndex(left, right) {
-    // TODO: Should use binary
+    // TODO: Probably should use binary
     // Loop backwards and check nodes
     let index = 0;
     for (var i=right.hashes.length-1; i > -1; i--) {
