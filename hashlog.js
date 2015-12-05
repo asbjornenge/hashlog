@@ -18,16 +18,18 @@ export default class HashLog {
         let tiplink   = this.tip ? this.tip.key : null
         let blockhash = this.hash(data+tiphash)
         let tipseen   = this.tipseen || [0,0]
+        let delta     = process.hrtime(tipseen)
+
         let block = {
             key   : blockhash, 
             value : data,
             link  : tiplink,
-            delta : process.hrtime(tipseen)
+            delta : delta[0] * 1e9 + delta[1] 
         }
         this.blocks[blockhash] = block
         this.hashes.push(blockhash)
         this.tip = block
-        this.tipseen = block.delta
+        this.tipseen = process.hrtime() 
     }
     contains(hash) {
         if (!hash) return false
@@ -40,20 +42,31 @@ export default class HashLog {
         if (this.contains(hashlog.tip.key)) return
         let commonIndexRight = findCommonIndex(this, hashlog)
         let commonIndexLeft = this.hashes.indexOf(hashlog.hashes[commonIndexRight])
+        let common = this.blocks[this.hashes[commonIndexLeft]]
+        console.log(common)
+
         let mergeblocksRight = []
+        let deltaFromCommonParentRight = 0
         for (var i = commonIndexRight+1; i < hashlog.hashes.length; i++) {
-            let mhash = hashlog.hashes[i]
+            let mhash  = hashlog.hashes[i]
             let mblock = hashlog.blocks[mhash]
+            deltaFromCommonParentRight += mblock.delta
+            mblock.deltaFromCommonParent = deltaFromCommonParentRight
             mergeblocksRight.push(mblock)
         }
+
         let mergeBlocksLeft = []
+        let deltaFromCommonParentLeft = 0
         for (var i = commonIndexLeft+1; i < this.hashes.length; i++) {
             let mhash = this.hashes[i]
             let mblock = this.blocks[mhash]
+            deltaFromCommonParentLeft += mblock.delta
+            mblock.deltaFromCommonParent = deltaFromCommonParentLeft
             mergeBlocksLeft.push(mblock)
         }
+
         let mergeBlocks = mergeBlocksLeft.concat(mergeblocksRight)
-        sortBlocksByDelta(mergeBlocks)
+        sortBlocksByDeltaFromCommonParent(mergeBlocks)
         console.log(mergeBlocks)
         // Find new nodes
         // for each
@@ -61,7 +74,16 @@ export default class HashLog {
         //   insert
         //   update parents?
         //   remove dead leafs - mergeblockleft hashes ?
+        //   remove deltaFromCommonParent
     }
+}
+
+function sortBlocksByDeltaFromCommonParent(blocks) {
+    blocks.sort((a,b) => {
+        if (a.deltaFromCommonParent < b.deltaFromCommonParent) return -1
+        if (a.deltaFromCommonParent > b.deltaFromCommonParent) return 1
+        return 0
+    })
 }
 
 function sortBlocksByDelta(blocks) {

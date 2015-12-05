@@ -44,9 +44,19 @@ it('can merge logs', (done) => {
     log1.push('data3')
     setTimeout(() => {
         log2.push('data4')
-        log1.merge(log2)
+        setTimeout(() => {
+            log2.push('data5')
+            setTimeout(() => {
+                log1.push('data6')
+                log1.merge(log2)
+                done()
+            })
+        })
         // TODO: Mangle merge back (2 into 1) - trivial?
-        done()
+        // TODO: What happends if we, post-merge, add more
+        // data to log2, then try another merge?
+        // We will still find the common ancestry, and insert at
+        // correct point...?
     })
 
 //    assert(log1.tip.value == 'data3')
