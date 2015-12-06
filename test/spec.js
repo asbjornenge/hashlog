@@ -49,7 +49,28 @@ it('can merge logs', (done) => {
             setTimeout(() => {
                 log1.push('data6')
                 log1.merge(log2)
+                assert(log1.hashes.length == 7)
+                assert(log1.tip.value == 'data6')
+                assert(log1.getBlockAtIndex(5).value == 'data5')
+                assert(log1.getBlockAtIndex(4).value == 'data4')
+                assert(log1.getBlockAtIndex(3).value == 'data3')
+                assert(log1.getBlockAtIndex(2).value == 'data2')
+                assert(log1.getBlockAtIndex(1).value == 'data1')
+                assert(log1.getBlockAtIndex(0).value == 'data0')
+
+                log2.merge(log1)
+                assert(log2.hashes.length == 7)
+                assert(log2.tip.value == 'data6')
+                assert(log2.getBlockAtIndex(5).value == 'data5')
+                assert(log2.getBlockAtIndex(4).value == 'data4')
+                assert(log2.getBlockAtIndex(3).value == 'data3')
+                assert(log2.getBlockAtIndex(2).value == 'data2')
+                assert(log2.getBlockAtIndex(1).value == 'data1')
+                assert(log2.getBlockAtIndex(0).value == 'data0')
                 done()
+
+                console.log(log1.tip.key)
+                console.log(log2.tip.key)
             })
         })
         // TODO: Mangle merge back (2 into 1) - trivial?

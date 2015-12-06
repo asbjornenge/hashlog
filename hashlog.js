@@ -1,4 +1,5 @@
 import { createHash } from 'crypto'
+import uuid from 'node-uuid'
 
 export default class HashLog {
     constructor(snapshot) {
@@ -13,18 +14,19 @@ export default class HashLog {
         // TODO: Add hash prefix?
         return createHash('sha256').update(data).digest().toString('hex')
     }
-    push(data) {
+    push(data, preComputedDelta, preComputedCommit) {
         let tiphash   = this.tip ? this.tip.key : ''
-        let tiplink   = this.tip ? this.tip.key : null
         let blockhash = this.hash(data+tiphash)
+        let uidhash   = this.hash(uuid.v4()+data)
         let tipseen   = this.tipseen || [0,0]
         let delta     = process.hrtime(tipseen)
 
+        // TODO: Rename key -> orderhash - key is misleading?
         let block = {
-            key   : blockhash, 
-            value : data,
-            link  : tiplink,
-            delta : delta[0] * 1e9 + delta[1] 
+            key    : blockhash, 
+            commit : preComputedCommit || uidhash,
+            value  : data,
+            delta  : preComputedDelta || (delta[0] * 1e9 + delta[1])
         }
         this.blocks[blockhash] = block
         this.hashes.push(blockhash)
@@ -36,6 +38,7 @@ export default class HashLog {
         return this.blocks[hash]
     }
     merge(hashlog) {
+        // TODO: Temporarily collect (not process) new events while merging 
         // Merge hashlog into this
         // If this contains hashlog, not worries
         if (this.tip.key == hashlog.tip.key) return
@@ -43,13 +46,22 @@ export default class HashLog {
         let commonIndexRight = findCommonIndex(this, hashlog)
         let commonIndexLeft = this.hashes.indexOf(hashlog.hashes[commonIndexRight])
         let common = this.blocks[this.hashes[commonIndexLeft]]
-        console.log(common)
+//        console.log(common)
 
         let mergeblocksRight = []
         let deltaFromCommonParentRight = 0
         for (var i = commonIndexRight+1; i < hashlog.hashes.length; i++) {
             let mhash  = hashlog.hashes[i]
             let mblock = hashlog.blocks[mhash]
+            // Check if we have this commit - naive for now, requires rebuild
+            let gotit = this.hashes.reduce((val, hash) => {
+                if (val) return val
+                let block = this.blocks[hash]
+                if (block.commit == mblock.commit) return true
+                return false
+            }, false)
+            if (gotit) console.log('got it', mblock.value)
+            if (gotit) continue
             deltaFromCommonParentRight += mblock.delta
             mblock.deltaFromCommonParent = deltaFromCommonParentRight
             mergeblocksRight.push(mblock)
@@ -67,7 +79,38 @@ export default class HashLog {
 
         let mergeBlocks = mergeBlocksLeft.concat(mergeblocksRight)
         sortBlocksByDeltaFromCommonParent(mergeBlocks)
-        console.log(mergeBlocks)
+
+//        console.log(mergeBlocks)
+//        console.log('####################')
+//        mergeBlocks.forEach((block) => {
+//            console.log(block.value, block.links.length)
+//            console.log(this.contains(block.key) != undefined)
+//            block.links.forEach((link) => {
+//                console.log(this.contains(link) != undefined)
+//            })
+//        })
+
+        this.hashes.splice(commonIndexLeft+1)
+        this.tip = common
+        let deltaFromCommonParentForPrevNode = 0
+
+        // Recompute hashes
+
+        mergeBlocks.forEach((block, index) => {
+            let newDelta = block.deltaFromCommonParent - deltaFromCommonParentForPrevNode
+            this.push(block.value, newDelta, block.commit)
+        })
+
+        // Keep hashes (immutable commit)
+
+//        mergeBlocks.forEach((block, index) => {
+//            let newDelta = block.deltaFromCommonParent - deltaFromCommonParentForPrevNode
+//            block.delta = newDelta
+//            this.hashes.push(block.key)
+//            this.blocks[block.key] = block
+//            this.tip = block
+//        })
+        
         // Find new nodes
         // for each
         //   determine location
@@ -75,6 +118,9 @@ export default class HashLog {
         //   update parents?
         //   remove dead leafs - mergeblockleft hashes ?
         //   remove deltaFromCommonParent
+    }
+    getBlockAtIndex(index) {
+        return this.blocks[this.hashes[index]]
     }
 }
 
