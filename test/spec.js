@@ -68,21 +68,7 @@ it('can merge logs', (done) => {
                 assert(log2.getBlockAtIndex(1).value == 'data1')
                 assert(log2.getBlockAtIndex(0).value == 'data0')
                 done()
-
-                console.log(log1.tip.sequence)
-                console.log(log2.tip.sequence)
             })
         })
-        // TODO: Mangle merge back (2 into 1) - trivial?
-        // TODO: What happends if we, post-merge, add more
-        // data to log2, then try another merge?
-        // We will still find the common ancestry, and insert at
-        // correct point...?
     })
-
-//    assert(log1.tip.value == 'data3')
-//    assert(log2.tip.value == 'data4')
-
-    
-
 })

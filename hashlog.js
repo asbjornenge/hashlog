@@ -43,7 +43,6 @@ export default class CommitLog {
         return this.commits[hash] != undefined
     }
     merge(hashlog) {
-        // TODO: Temporarily collect (not process) new events while merging 
         // Merge hashlog into this
         // If this contains hashlog, not worries
         if (this.tip.sequence == hashlog.tip.sequence) return
