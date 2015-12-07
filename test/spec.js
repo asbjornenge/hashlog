@@ -4,7 +4,7 @@ import HashLog from '../hashlog'
 it('can make hashlogs', () => {
     let log = new HashLog()
     assert(log.tip == null)
-    assert(log.hashes.length == 0)
+    assert(log.length == 0)
 })
 
 it('can insert data', () => {
@@ -13,12 +13,12 @@ it('can insert data', () => {
     log.push('data1')
     log.push('data2')
     assert(log.tip != null)
-    assert(log.hashes.length == 3)
+    assert(log.length == 3)
 })
 
 it('can take initial data - snapshot?', () => {
     let log = new HashLog(['1','2','3'])
-    assert(log.hashes.length == 3)
+    assert(log.length == 3)
 })
 
 it('can check if a log contains a hash', () => {
@@ -30,10 +30,10 @@ it('can check if a log contains a hash', () => {
     log2.push('data0')
     log2.push('data1')
     log2.push('data3')
-    assert(log1.contains(log2.hashes[0]))
-    assert(log2.contains(log1.hashes[1]))
-    assert(!log1.contains(log2.hashes[2]))
-    assert(!log2.contains(log1.hashes[2]))
+    assert(log1.contains(log2.getBlockAtIndex(0).sequence))
+    assert(log2.contains(log1.getBlockAtIndex(1).sequence))
+    assert(!log1.contains(log2.getBlockAtIndex(2).sequence))
+    assert(!log2.contains(log1.getBlockAtIndex(2).sequence))
 })
 
 it('can merge logs', (done) => {
@@ -49,7 +49,7 @@ it('can merge logs', (done) => {
             setTimeout(() => {
                 log1.push('data6')
                 log1.merge(log2)
-                assert(log1.hashes.length == 7)
+                assert(log1.length == 7)
                 assert(log1.tip.value == 'data6')
                 assert(log1.getBlockAtIndex(5).value == 'data5')
                 assert(log1.getBlockAtIndex(4).value == 'data4')
@@ -59,7 +59,7 @@ it('can merge logs', (done) => {
                 assert(log1.getBlockAtIndex(0).value == 'data0')
 
                 log2.merge(log1)
-                assert(log2.hashes.length == 7)
+                assert(log2.length == 7)
                 assert(log2.tip.value == 'data6')
                 assert(log2.getBlockAtIndex(5).value == 'data5')
                 assert(log2.getBlockAtIndex(4).value == 'data4')
@@ -69,8 +69,8 @@ it('can merge logs', (done) => {
                 assert(log2.getBlockAtIndex(0).value == 'data0')
                 done()
 
-                console.log(log1.tip.key)
-                console.log(log2.tip.key)
+                console.log(log1.tip.sequence)
+                console.log(log2.tip.sequence)
             })
         })
         // TODO: Mangle merge back (2 into 1) - trivial?
