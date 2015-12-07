@@ -1,36 +1,36 @@
 import { createHash } from 'crypto'
 import uuid from 'node-uuid'
 
-export default class CommitLog {
+export default class HashLog {
     constructor(data) {
-        this.tip       = null
-        this.sequence  = []
-        this.blocks    = {}
-        this.commits   = {}
+        this.tip     = null
+        this.chain   = []
+        this.blocks  = {}
+        this.commits = {}
         if(data) data.forEach(block => this.push(block))
     }
-    get length() { return this.sequence.length  }
+    get length() { return this.chain.length  }
     hash(data) {
         // TODO: Add hash prefix?
         return createHash('sha256').update(data).digest().toString('hex')
     }
     push(data, preComputedDelta, preComputedCommit) {
-        let tiphash      = this.tip ? this.tip.sequence : ''
-        let sequencehash = this.hash(data+tiphash)
-        let commit       = uuid.v4()
-        let tipseen      = this.tipseen || [0,0]
-        let delta        = process.hrtime(tipseen)
+        let tiphash   = this.tip ? this.tip.chainhash : ''
+        let chainhash = this.hash(data+tiphash)
+        let commit    = uuid.v4()
+        let tipseen   = this.tipseen || [0,0]
+        let delta     = process.hrtime(tipseen)
 
         let block = {
-            sequence : sequencehash, 
-            commit   : preComputedCommit || commit,
-            value    : data,
-            delta    : preComputedDelta || (delta[0] * 1e9 + delta[1])
+            chainhash : chainhash, 
+            commit    : preComputedCommit || commit,
+            value     : data,
+            delta     : preComputedDelta || (delta[0] * 1e9 + delta[1])
         }
 
-        this.blocks[sequencehash] = block
+        this.blocks[chainhash] = block
         this.commits[commit] = block
-        this.sequence.push(sequencehash)
+        this.chain.push(chainhash)
         this.tip = block
         this.tipseen = process.hrtime() 
     }
@@ -45,17 +45,17 @@ export default class CommitLog {
     merge(hashlog) {
         // Merge hashlog into this
         // If this contains hashlog, not worries
-        if (this.tip.sequence == hashlog.tip.sequence) return
+        if (this.tip.chainhash == hashlog.tip.chainhash) return
         if (this.contains(hashlog.tip.key)) return
-        let commonSequenceRight = findcommonSequence(this, hashlog)
-        let commonSequenceLeft = this.sequence.indexOf(hashlog.sequence[commonSequenceRight])
-        let common = this.blocks[this.sequence[commonSequenceLeft]]
+        let commonChainRight = findCommonChain(this, hashlog)
+        let commonChainLeft = this.chain.indexOf(hashlog.chain[commonChainRight])
+        let common = this.blocks[this.chain[commonChainLeft]]
 
         // Compute the Right hand blocks
         let mergeblocksRight = []
         let deltaFromCommonParentRight = 0
-        for (var i = commonSequenceRight+1; i < hashlog.length; i++) {
-            let mhash  = hashlog.sequence[i]
+        for (var i = commonChainRight+1; i < hashlog.length; i++) {
+            let mhash  = hashlog.chain[i]
             let mblock = hashlog.blocks[mhash]
             deltaFromCommonParentRight += mblock.delta
             mblock.deltaFromCommonParent = deltaFromCommonParentRight
@@ -69,8 +69,8 @@ export default class CommitLog {
         // Compute the Left hand blocks
         let mergeBlocksLeft = []
         let deltaFromCommonParentLeft = 0
-        for (var i = commonSequenceLeft+1; i < this.length; i++) {
-            let mhash = this.sequence[i]
+        for (var i = commonChainLeft+1; i < this.length; i++) {
+            let mhash = this.chain[i]
             let mblock = this.blocks[mhash]
             deltaFromCommonParentLeft += mblock.delta
             mblock.deltaFromCommonParent = deltaFromCommonParentLeft
@@ -80,19 +80,19 @@ export default class CommitLog {
         let mergeBlocks = mergeBlocksLeft.concat(mergeblocksRight)
         sortBlocksByDeltaFromCommonParent(mergeBlocks)
 
-        this.sequence.splice(commonSequenceLeft+1)
+        this.chain.splice(commonChainLeft+1)
         this.tip = common
         let deltaFromCommonParentForPrevNode = 0
 
-        // Recompute sequence 
+        // Recompute chain 
         mergeBlocks.forEach((block, index) => {
             let newDelta = block.deltaFromCommonParent - deltaFromCommonParentForPrevNode
-            delete this.blocks[block.sequence]
+            delete this.blocks[block.chain]
             this.push(block.value, newDelta, block.commit)
         })
     }
     getBlockAtIndex(index) {
-        return this.blocks[this.sequence[index]]
+        return this.blocks[this.chain[index]]
     }
 }
 
@@ -114,12 +114,12 @@ function sortBlocksByDelta(blocks) {
     })
 }
 
-function findcommonSequence(left, right) {
+function findCommonChain(left, right) {
     // TODO: Probably should use binary
     // Loop backwards and check nodes
     let index = 0;
-    for (var i=right.sequence.length-1; i > -1; i--) {
-        if (left.contains(right.sequence[i])) {
+    for (var i=right.chain.length-1; i > -1; i--) {
+        if (left.contains(right.chain[i])) {
             index = i
             break
         }
