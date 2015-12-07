@@ -75,6 +75,9 @@ it('can merge logs', (done) => {
                 assert(log1.getBlockAtIndex(1).chainhash == log2.getBlockAtIndex(1).chainhash)
                 assert(log1.getBlockAtIndex(0).chainhash == log2.getBlockAtIndex(0).chainhash)
 
+                console.log(log1.tip.chainhash)
+                console.log(log2.tip.chainhash)
+
                 done()
             })
         })

@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "farmhash": "^1.1.0",
     "merkle-tree-stream": "^1.0.2",
     "node-uuid": "^1.4.7"
   },

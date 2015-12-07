@@ -1,4 +1,5 @@
 import { createHash } from 'crypto'
+import { hash64, fingerprint64 } from 'farmhash'
 import uuid from 'node-uuid'
 
 export default class HashLog {
@@ -12,6 +13,7 @@ export default class HashLog {
     get length() { return this.chain.length  }
     hash(data) {
         // TODO: Add hash prefix?
+        // return fingerprint64(data)
         return createHash('sha256').update(data).digest().toString('hex')
     }
     push(data, preComputedDelta, preComputedCommit) {
