@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "merkle-tree-stream": "^1.0.2"
+    "merkle-tree-stream": "^1.0.2",
+    "node-uuid": "^1.4.7"
   },
   "babel": {
     "env": {
