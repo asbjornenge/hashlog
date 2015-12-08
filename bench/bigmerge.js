@@ -5,8 +5,10 @@ let commondata = []
 let log1data = []
 let log2data = []
 console.time('mock')
-for (var i=0; i<250000; i++) {
+for (var i=0; i<1000000; i++) {
     commondata.push(Math.random().toString(36).substring(7))
+}
+for (var i=0; i<25000; i++) {
     log1data.push(Math.random().toString(36).substring(7))
     log2data.push(Math.random().toString(36).substring(7))
 }
@@ -19,6 +21,11 @@ console.time('push')
 log1data.forEach(data => log1.push(data))
 log2data.forEach(data => log2.push(data))
 console.timeEnd('push')
-console.time('merge')
+console.time('merge1')
 log1.merge(log2)
-console.timeEnd('merge')
+console.timeEnd('merge1')
+console.time('merge2')
+log2.merge(log1)
+console.timeEnd('merge2')
+console.log(log1.tip.chainhash)
+console.log(log2.tip.chainhash)
