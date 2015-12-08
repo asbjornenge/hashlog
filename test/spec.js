@@ -1,5 +1,6 @@
-import assert  from 'assert'
-import HashLog from '../hashlog'
+import assert    from 'assert'
+import HashLog   from '../hashlog'
+import { merge } from '../utils'
 
 it('can make hashlogs', () => {
     let log = new HashLog()
@@ -47,7 +48,7 @@ it('can merge logs', (done) => {
             log2.push('data5')
             setTimeout(() => {
                 log1.push('data6')
-                log1.merge(log2)
+                merge(log1, log2)
                 assert(log1.length == 7)
                 assert(log1.tip.value == 'data6')
                 assert(log1.getBlockAtIndex(5).value == 'data5')
@@ -57,7 +58,7 @@ it('can merge logs', (done) => {
                 assert(log1.getBlockAtIndex(1).value == 'data1')
                 assert(log1.getBlockAtIndex(0).value == 'data0')
 
-                log2.merge(log1)
+                merge(log2, log1)
                 assert(log2.length == 7)
                 assert(log2.tip.value == 'data6')
                 assert(log2.getBlockAtIndex(5).value == 'data5')

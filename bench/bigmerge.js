@@ -1,5 +1,5 @@
-import randomstring from 'randomstring'
-import HashLog from '../hashlog'
+import HashLog      from '../hashlog'
+import { merge }    from '../utils'
 
 let commondata = []
 let log1data = []
@@ -22,10 +22,10 @@ log1data.forEach(data => log1.push(data))
 log2data.forEach(data => log2.push(data))
 console.timeEnd('push')
 console.time('merge1')
-log1.merge(log2)
+merge(log1, log2)
 console.timeEnd('merge1')
 console.time('merge2')
-log2.merge(log1)
+merge(log2, log1)
 console.timeEnd('merge2')
 console.log(log1.tip.chainhash, log1.length, log1.blocks[log1.tip.chainhash].value)
 console.log(log2.tip.chainhash, log2.length, log2.blocks[log2.tip.chainhash].value)
