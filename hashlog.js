@@ -13,13 +13,13 @@ export default class HashLog {
     get length() { return this.chain.length  }
     hash(data) {
         // TODO: Add hash prefix?
-        // return fingerprint64(data)
-        return createHash('sha256').update(data).digest().toString('hex')
+        return fingerprint64(data)
+        //return createHash('sha256').update(data).digest().toString('hex')
     }
     push(data, preComputedDelta, preComputedCommit) {
         let tiphash   = this.tip ? this.tip.chainhash : ''
         let chainhash = this.hash(data+tiphash)
-        let commit    = uuid.v4()
+        let commit    = chainhash //uuid.v4()
         let tipseen   = this.tipseen || [0,0]
         let delta     = process.hrtime(tipseen)
 
