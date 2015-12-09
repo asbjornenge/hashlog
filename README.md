@@ -1,10 +1,8 @@
 # HashLog
 
-HashLog is an experimental data structure using merkle-style hashing to ensure order.
+HashLog is an experimental data structure using [merkle-style](https://en.wikipedia.org/wiki/Merkle_tree) hashing and a time-delta inspired by [lamport timestamp](https://en.wikipedia.org/wiki/Lamport_timestamps) to ensure order on merge.
 
-FYI: This is totally en experiment for now!
-
-Lamport counter...?
+FYI: This is totally an experiment!
 
 ## Install
 
