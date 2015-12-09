@@ -16,16 +16,15 @@ npm install --save hashlog
 import HashLog   from 'hashlog'
 import { merge } from 'hashlog/utils'
 
-let log1 = new HashLog(['data1','data2'])
+let log1 = new HashLog()
 let log2 = new HashLog(['data1','data2'])
 
 log1.push('data3')
-setTimeout(() => {
-    log2.push('data4')
-    merge(log1, log2) // Merge log2 into log1
-    merge(log2, log1) // Merge log1 into log2
-    assert(log1.tip.chainhash == log2.tip.chainhash)
-})
+merge(log1, log2) // Merge log2 into log1 
+merge(log2, log1) // Merge log1 into log2
+assert(log1.tip.chainhash == log2.tip.chainhash)
+assert(log1.tip.value == log2.tip.value)
+assert(log1.tip.value == 'data3')
 ```
 
 ## Benchmark
