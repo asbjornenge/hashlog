@@ -1,11 +1,19 @@
 // Merge right into left
 export function merge(left, right) {
     // If left contains right, return
-    if (left.tip.chainhash == right.tip.chainhash) return
-    if (left.contains(right.tip.key)) return
+    if (!right.tip) return
+    if (left.tip && right.tip) {
+        if (left.tip.chainhash == right.tip.chainhash) return
+        if (left.contains(right.tip.key)) return
+    }
     let commonChainRight = findCommonChain(left, right)
     let commonChainLeft = left.chain.indexOf(right.chain[commonChainRight])
     let common = left.blocks[left.chain[commonChainLeft]]
+
+    if (commonChainRight == 0) {
+        commonChainRight = -1
+        commonChainLeft = -1
+    }
 
     // Compute the Right hand blocks
     let mergeblocksRight = []

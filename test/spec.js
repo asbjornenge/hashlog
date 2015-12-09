@@ -17,7 +17,7 @@ it('can insert data', () => {
     assert(log.length == 3)
 })
 
-it('can take initial data - snapshot?', () => {
+it('can take initial data', () => {
     let log = new HashLog(['1','2','3'])
     assert(log.length == 3)
 })
@@ -76,11 +76,27 @@ it('can merge logs', (done) => {
                 assert(log1.getBlockAtIndex(1).chainhash == log2.getBlockAtIndex(1).chainhash)
                 assert(log1.getBlockAtIndex(0).chainhash == log2.getBlockAtIndex(0).chainhash)
 
-                console.log(log1.tip.chainhash)
-                console.log(log2.tip.chainhash)
+                //console.log(log1.tip.chainhash)
+                //console.log(log2.tip.chainhash)
 
                 done()
             })
         })
     })
+})
+
+it('works with empty logs too', () => {
+    let log1 = new HashLog()
+    let log2 = new HashLog()
+    let log3 = new HashLog()
+    log1.push('data1')
+    log2.push('data2')
+    merge(log1, log3)
+    merge(log1, log2)
+    merge(log2, log1)
+    merge(log3, log1)
+    assert(log1.tip.chainhash == log2.tip.chainhash)
+    assert(log1.tip.chainhash == log3.tip.chainhash)
+    assert(log1.length == log2.length)
+    assert(log1.length == log3.length)
 })
