@@ -4,6 +4,12 @@ HashLog is an experimental data structure using [merkle-style](https://en.wikipe
 
 FYI: This is totally an experiment!
 
+## Theory
+
+By using merkle-style hashing we can ensure order across logs. If we can find a common hash in the past, we can be sure that all data up to this merge-point is the same. By also storing a time-delta between commits we can calculate deltas from the merge-point and ensure correct ordering on merge.
+
+Also; logs are great! You can build any other kind of data using a log.
+
 ## Install
 
 ```sh
