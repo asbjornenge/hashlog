@@ -1,6 +1,6 @@
 # HashLog
 
-HashLog is an experimental data structure using [merkle-style](https://en.wikipedia.org/wiki/Merkle_tree) hashing and a time-delta inspired by [lamport timestamp](https://en.wikipedia.org/wiki/Lamport_timestamps) to create a *commit-log* that ensures correct ordering of commits on merge.
+HashLog is an experimental data structure using [merkle-style](https://en.wikipedia.org/wiki/Merkle_tree) hashing and a time-delta inspired by [lamport timestamp](https://en.wikipedia.org/wiki/Lamport_timestamps) to create a *commit-log* type structure that ensures correct ordering of commits on merge, even for distributed logs (unsynchronized clocks).
 
 FYI: This is totally an experiment!
 
