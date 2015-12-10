@@ -16,14 +16,13 @@ export default class HashLog {
         let tiphash   = this.tip ? this.tip.chainhash : ''
         let chainhash = this.hash(data+tiphash)
         let commit    = chainhash
-        let tipseen   = this.tipseen || [0,0]
-        let delta     = process.hrtime(tipseen)
+        let delta     = this.getPushDelta(preComputedDelta)
 
         let block = {
             chainhash : chainhash, 
             commit    : preComputedCommit || commit,
             value     : data,
-            delta     : preComputedDelta || (delta[0] * 1e9 + delta[1])
+            delta     : delta 
         }
 
         this.blocks[chainhash] = block
@@ -31,6 +30,12 @@ export default class HashLog {
         this.chain.push(chainhash)
         this.tip = block
         this.tipseen = process.hrtime() 
+    }
+    getPushDelta(preComputedDelta) {
+        if (this.length == 0) return 0
+        if (preComputedDelta) return preComputedDelta
+        let delta = process.hrtime(this.tipseen)
+        return delta[0] * 1e9 + delta[1]
     }
     contains(hash) {
         if (!hash) return false

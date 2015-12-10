@@ -10,9 +10,15 @@ export function merge(left, right) {
     let commonChainLeft = left.chain.indexOf(right.chain[commonChainRight])
     let common = left.blocks[left.chain[commonChainLeft]]
 
-    if (commonChainRight == 0) {
-        commonChainRight = -1
-        commonChainLeft = -1
+    // No common hash found :-( 
+    if (commonChainRight == -1) {
+        // If left or right is empty - allow
+        if (left.length == 0 || right.length == 0) {
+            commonChainRight = -1
+            commonChainLeft = -1
+        } else {
+            throw new Error('Unable to merge. Left side is not empty and has no common commit with right side.')
+        }
     }
 
     // Compute the Right hand blocks
@@ -77,7 +83,7 @@ function sortBlocksByDelta(blocks) {
 function findCommonChain(left, right) {
     // TODO: Probably should use binary
     // Loop backwards looking for common chainhash 
-    let index = 0;
+    let index = -1;
     for (var i=right.chain.length-1; i > -1; i--) {
         if (left.contains(right.chain[i])) {
             index = i

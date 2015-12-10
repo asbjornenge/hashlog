@@ -85,18 +85,50 @@ it('can merge logs', (done) => {
     })
 })
 
-it('works with empty logs too', () => {
+it('can merge from and into empty logs', () => {
     let log1 = new HashLog()
     let log2 = new HashLog()
-    let log3 = new HashLog()
+    log1.push('data1')
+    merge(log1, log2)
+    assert(log2.length == 0)
+    merge(log2, log1)
+    assert(log1.tip.chainhash == log2.tip.chainhash)
+    assert(log1.length == log2.length)
+})
+
+it('throws on merge of two logs with no commonality', () => {
+    let log1 = new HashLog()
+    let log2 = new HashLog()
     log1.push('data1')
     log2.push('data2')
-    merge(log1, log3)
-    merge(log1, log2)
-    merge(log2, log1)
-    merge(log3, log1)
-    assert(log1.tip.chainhash == log2.tip.chainhash)
-    assert(log1.tip.chainhash == log3.tip.chainhash)
-    assert(log1.length == log2.length)
-    assert(log1.length == log3.length)
+    try {
+        merge(log1, log2)
+        assert(false) // assure this is not happening
+    } catch(e) {
+        assert(e)
+    }
+})
+
+it('can handle multiple merges', (done) => {
+    let log1 = new HashLog(['data1'])
+    let log2 = new HashLog(['data1'])
+    let log3 = new HashLog(['data1'])
+
+    log2.push('data2')
+
+    setTimeout(() => {
+        log3.push('data5')
+        merge(log1, log2)
+        setTimeout(() => {
+            merge(log1, log3)
+            assert(log1.tip.value == 'data5')
+            merge(log3, log1)
+            assert(log1.tip.value == 'data5')
+            assert(log1.tip.chainhash == log3.tip.chainhash)
+            merge(log2, log3)
+            assert(log2.tip.value == 'data5')
+            assert(log2.tip.chainhash == log3.tip.chainhash)
+            done()
+        })
+    })
 })
