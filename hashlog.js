@@ -38,11 +38,9 @@ export default class HashLog {
         return delta[0] * 1e9 + delta[1]
     }
     contains(hash) {
-        if (!hash) return false
         return this.blocks[hash] != undefined
     }
     containsCommit(hash) {
-        if (!hash) return false
         return this.commits[hash] != undefined
     }
     getBlockAtIndex(index) {
