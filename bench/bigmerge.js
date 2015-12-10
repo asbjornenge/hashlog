@@ -30,8 +30,9 @@ console.timeEnd('merge2')
 
 console.log(log1.tip.chainhash, log1.length, log1.blocks[log1.tip.chainhash].value)
 console.log(log2.tip.chainhash, log2.length, log2.blocks[log2.tip.chainhash].value)
-
+console.log('LOG1')
 console.log(log1.getBlockAtIndex(1020000))
-console.log(log2.getBlockAtIndex(1020000))
 console.log(log1.getBlockAtIndex(1020001))
+console.log('LOG2')
+console.log(log2.getBlockAtIndex(1020000))
 console.log(log2.getBlockAtIndex(1020001))
