@@ -50,13 +50,15 @@ export function merge(left, right) {
     let mergeBlocks = mergeBlocksLeft.concat(mergeblocksRight)
     sortBlocksByDeltaFromCommonParent(mergeBlocks)
 
+    // Reset left to common
     left.chain.splice(commonChainLeft+1)
     left.tip = common
-    let deltaFromCommonParentForPrevNode = 0
 
     // Recompute chain 
+    let deltaFromCommonParentForPrevNode = 0
     mergeBlocks.forEach((block, index) => {
         let newDelta = block.deltaFromCommonParent - deltaFromCommonParentForPrevNode
+        deltaFromCommonParentForPrevNode += newDelta
         delete left.blocks[block.chain]
         left.push(block.value, newDelta, block.commit)
     })
