@@ -12,8 +12,11 @@ export function merge(left, right) {
 
     // No common hash found :-( 
     if (commonChainRight == -1) {
-        // If left or right is empty - allow
-        if (left.length == 0 || right.length == 0) {
+        // If left is empty - allow
+        if (left.length == 0) {
+            // TODO: Would it not be smarter in this case to
+            // clone all the properties of right into left instead of recompute?
+            // Test what is faster. 
             commonChainRight = -1
             commonChainLeft = -1
         } else {
