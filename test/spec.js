@@ -85,7 +85,7 @@ it('can merge logs', (done) => {
     })
 })
 
-it.only('can merge into empty logs', () => {
+it('can merge into empty logs', () => {
     let log1 = new HashLog()
     let log2 = new HashLog()
     log1.push('data1')
