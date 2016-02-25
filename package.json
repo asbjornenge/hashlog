@@ -2,7 +2,7 @@
   "name": "hashlog",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/hashlog.js",
   "scripts": {
     "test": "BABEL_ENV=test mocha --compilers js:babel-core/register -w --check-leaks",
     "build": "babel --presets es2015 *.js --out-dir lib",
