@@ -1,6 +1,6 @@
 {
   "name": "hashlog",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "HashLog is an experimental data structure",
   "main": "lib/hashlog.js",
   "scripts": {
