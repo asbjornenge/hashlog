@@ -1,7 +1,7 @@
 {
   "name": "hashlog",
   "version": "1.0.0",
-  "description": "",
+  "description": "HashLog is an experimental data structure",
   "main": "lib/hashlog.js",
   "scripts": {
     "test": "BABEL_ENV=test mocha --compilers js:babel-core/register -w --check-leaks",
