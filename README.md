@@ -36,7 +36,7 @@ assert(log1.tip.value == 'data2')
 ## Benchmark
 
 ```sh
-$ babel-node bench/bigmerge.js
+$ npm run bench 
 mock: 581ms
 init: 15043ms
 push: 419ms
